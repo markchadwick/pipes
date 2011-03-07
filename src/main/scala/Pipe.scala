@@ -7,7 +7,7 @@ trait Pipe[In, Out] {
     val me = this
     new Pipe[In, A] {
       def apply(in: In) = me.apply(in).flatMap(other.apply)
-      override def toString = "(%s ⇒ %s)".format(me, other)
+      override def toString = "(%s → %s)".format(me, other)
     }
   }
 

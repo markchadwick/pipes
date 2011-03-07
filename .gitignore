@@ -3,4 +3,3 @@ lib_managed
 project/boot
 src_managed
 target
-concurrent
