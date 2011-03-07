@@ -26,6 +26,6 @@ class ConcurrentPipeSpec extends FlatSpec with ShouldMatchers {
     })
 
     val pipe = busyPipe(20) | busyPipe(10) | busyPipe(5)
-    println(pipe)
+    println(pipe(10))
   }
 }

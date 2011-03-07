@@ -1,8 +1,10 @@
 package pipes.concurrent
 
-import java.lang.Runnable
-import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.FutureTask
 import java.util.concurrent.Future
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 
 import pipes.Pipe
 
@@ -12,56 +14,45 @@ object ConcurrentPipe {
       def processEntry(in: A) = pipe.apply(in)
       override def toString = pipe.toString
     }
+
+  def threadFactory(name: String) = new ThreadFactory {
+    def newThread(r: Runnable) = {
+      val thread = new Thread(r)
+      thread.setName("ConcurrentPipe [%s]".format(name))
+      thread.setDaemon(true)
+      thread
+    }
+  }
 }
 
 trait ConcurrentPipe[In, Out] extends Pipe[In, Out] {
   def processEntry(in: In): Traversable[Out]
-  def maxQueue = 10
 
-  def put(in: In): Unit /* Future[Option[Out]] */ = workQueue.put(Some(in))
-  def put(): Unit = workQueue.put(None)
+  def getExecutorService = Executors.newSingleThreadExecutor(
+                              ConcurrentPipe.threadFactory(toString))
+  lazy val executor = getExecutorService
+
+  def put(in: In): Future[Traversable[Out]] = {
+    val future = executor.submit(callable(in))
+    future
+  }
+
+
+  def |[A](other: ConcurrentPipe[Out, A]): ConcurrentPipe[In, A] = {
+    val me = this
+    new ConcurrentPipe[In, A] {
+      def processEntry(in: In): Traversable[A] = {
+        me.processEntry(in).map(other.put).flatMap(_.get)
+      }
+      override def toString = "(%s ⇒ %s)".format(me.toString, other.toString)
+    }
+  }
 
   override def apply(in: In): Traversable[Out] = {
-    put(in)
-    put()
-
-    Stream.continually(resultQueue.take)
-          .takeWhile(_ != None)
-          .map(_.get)
+    put(in).get
   }
 
-  override def |[A](other: Pipe[Out, A]): ConcurrentPipe[In, A] = {
-    other match {
-      case cp: ConcurrentPipe[Out, A] ⇒ this.append(cp)
-      case sp: Pipe[Out, A] ⇒ this.append(ConcurrentPipe(sp))
-    }
+  private def callable(in: In) = new Callable[Traversable[Out]] {
+    def call() = processEntry(in)
   }
-
-  private def append[A](pipe: ConcurrentPipe[Out, A]): ConcurrentPipe[In, A] = {
-    var me = this
-    new ConcurrentPipe[In, A] {
-      def processEntry(in: In) = {
-        val result = me.processEntry(in)
-        result.flatMap(pipe.apply)
-      }
-    }
-  }
-
-  private val workQueue = new ArrayBlockingQueue[Option[In]](maxQueue)
-  private val resultQueue = new ArrayBlockingQueue[Option[Out]](maxQueue)
-  private var running = true
-  private val workThread = {
-    val thread = new Thread(new Runnable {
-      def run() = while(running) {
-        workQueue.take.map(processEntry) match {
-          case None ⇒ resultQueue.put(None)
-          case Some(xs) ⇒ xs.foreach(r ⇒ resultQueue.put(Some(r)))
-        }
-      }
-    })
-    thread.setDaemon(true)
-    thread.setName(toString)
-    thread
-  }
-  workThread.start()
 }
