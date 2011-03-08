@@ -20,6 +20,7 @@ class ConversionsSpec extends FlatSpec with ShouldMatchers {
     quad2(2) should equal (8 :: Nil)
   }
 
+  /*
   it should "convert a list to a source" in {
     import pipes.Pipes._
 
@@ -39,4 +40,5 @@ class ConversionsSpec extends FlatSpec with ShouldMatchers {
     val pipe = List(1, 2, 3) | ((x: Int) ⇒ x * 2 :: Nil)
     pipe() should equal (List(2, 4, 6))
   }
+  */
 }

@@ -3,6 +3,7 @@ package pipes
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
+import pipes.processor.Processor
 
 class PipeSpec extends FlatSpec with ShouldMatchers {
   behavior of "Pipe"
@@ -11,7 +12,6 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
     val doublePipe = new Pipe[Int, Int] {
       def apply(i: Int) = i * 2 :: Nil
     }
-
     doublePipe(3) should equal (6 :: Nil)
   }
 
