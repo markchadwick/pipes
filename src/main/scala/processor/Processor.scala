@@ -44,9 +44,9 @@ trait Processor[In, Out] {
 
   def get(): Traversable[Out]
 
-  def apply[A](func: ⇒ A) {
+  def apply[A](func: Processor[In, Out] ⇒ A) {
     start()
-    val result = func
+    val result = func(this)
     stop()
     result
   }

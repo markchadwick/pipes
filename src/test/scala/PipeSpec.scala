@@ -8,21 +8,13 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
   behavior of "Pipe"
 
   it should "define a pipe" in {
-    import pipes.processor.SerialProcessorFactory
-    // implicit val fact = SerialProcessorFactory
     val doublePipe = Pipe { (i: Int) ⇒ i * 2 :: Nil }
     doublePipe(3) should equal (6 :: Nil)
   }
 
-  /*
   it should "put two pipes to gether" in {
-    val doublePipe = new Pipe[Int, Int] {
-      def apply(i: Int) = i * 2 :: Nil
-    }
-
-    val twicePipe = new Pipe[Int, Int] {
-      def apply(i: Int) = i :: i :: Nil
-    }
+    val doublePipe = Pipe { (i: Int) ⇒ i * 2 :: Nil }
+    val twicePipe = Pipe { (i: Int) ⇒ i :: i :: Nil }
 
     val p1 = doublePipe | twicePipe
     val p2 = twicePipe | doublePipe
@@ -30,6 +22,8 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
     p1(5) should equal (10 :: 10 :: Nil)
     p2(5) should equal (10 :: 10 :: Nil)
   }
+
+  /*
 
   it should "optionally append a pipe" in {
     val doublePipe = new Pipe[Int, Int] {

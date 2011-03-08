@@ -15,10 +15,10 @@ trait ProcessorTests extends FlatSpec with ShouldMatchers {
       proc.put(in * 2)
     }
 
-    proc {
-      proc.enqueue(1)
-      proc.enqueue(2)
-      proc.enqueue(3)
+    proc { p ⇒
+      p.enqueue(1)
+      p.enqueue(2)
+      p.enqueue(3)
     }
 
     proc.get.toList should equal (List(2, 4, 6))
