@@ -1,7 +1,9 @@
 package pipes.processor
 
-trait ProcessorFactory {
-  def apply[In, Out](func: In ⇒ Traversable[Out]): Processor[In, Out]
+object Processor {
+  def apply[A, B](func: A ⇒ Traversable[B]) = new ThreadProcessor[A, B] {
+    def process(in: A, put: B ⇒ Unit) = func(in).foreach(put)
+  }
 }
 
 /** A processor is a unit of work which is able to take some value and put some
@@ -33,15 +35,14 @@ trait Processor[In, Out] {
     * computed.
     *
     * @param inValue Value to process
+    * @param put Function to call for each result value
     */
-  def process(inValue: In): Unit
+  def process(inValue: In, put: Out ⇒ Unit): Unit
 
-  def put(outValue: Out): Unit
   def enqueue(inValue: In): Unit
 
   def start(): Unit = {}
   def stop(): Unit = {}
-
   def get(): Traversable[Out]
 
   def apply[A](func: Processor[In, Out] ⇒ A) {

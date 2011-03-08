@@ -3,18 +3,33 @@ package pipes
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
+import pipes.processor.Processor
 
 class PipeSpec extends FlatSpec with ShouldMatchers {
   behavior of "Pipe"
 
   it should "define a pipe" in {
-    val doublePipe = Pipe { (i: Int) ⇒ i * 2 :: Nil }
+    val doublePipe = new Pipe[Int, Int] {
+      def apply(i: Int) = i * 2 :: Nil
+    }
     doublePipe(3) should equal (6 :: Nil)
   }
 
+  /*
   it should "put two pipes to gether" in {
-    val doublePipe = Pipe { (i: Int) ⇒ i * 2 :: Nil }
-    val twicePipe = Pipe { (i: Int) ⇒ i :: i :: Nil }
+    val doublePipe = new Pipe[Int, Int] {
+      def apply(i: Int) = {
+        println("doublePipe: %s".format(i))
+        i * 2 :: Nil
+      }
+    }
+
+    val twicePipe = new Pipe[Int, Int] {
+      def apply(i: Int) = {
+        println("twicePipe: %s".format(i))
+        i :: i :: Nil
+      }
+    }
 
     val p1 = doublePipe | twicePipe
     val p2 = twicePipe | doublePipe
@@ -22,8 +37,6 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
     p1(5) should equal (10 :: 10 :: Nil)
     p2(5) should equal (10 :: 10 :: Nil)
   }
-
-  /*
 
   it should "optionally append a pipe" in {
     val doublePipe = new Pipe[Int, Int] {

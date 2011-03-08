@@ -1,11 +1,12 @@
 package pipes.processor
 
 
-class ThreadProcessorTests extends ProcessorTests {
+class ThreadProcessorSpec extends ProcessorTests {
   def name = "Thread Processor"
-  def processor[In, Out](func: (In, Processor[In, Out]) ⇒ Unit) = {
+
+  def processor[In, Out](func: (In, Out ⇒ Unit) ⇒ Unit) = {
     new ThreadProcessor[In, Out] {
-      def process(in: In) = func(in, this)
+      def process(in: In, put: Out ⇒ Unit): Unit = func(in, put)
     }
   }
 }

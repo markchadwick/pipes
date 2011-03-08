@@ -6,13 +6,13 @@ import org.scalatest.matchers.ShouldMatchers
 
 trait ProcessorTests extends FlatSpec with ShouldMatchers {
   def name: String
-  def processor[In, Out](func: (In, Processor[In, Out]) ⇒ Unit): Processor[In, Out]
+  def processor[In, Out](func: (In, Out ⇒ Unit) ⇒ Unit): Processor[In, Out]
 
   behavior of name
 
   it should "transform a value" in {
-    val proc = processor[Int, Int] { case (in, proc) ⇒
-      proc.put(in * 2)
+    val proc = processor[Int, Int] { case (in, put) ⇒
+      put(in * 2)
     }
 
     proc { p ⇒
@@ -25,9 +25,9 @@ trait ProcessorTests extends FlatSpec with ShouldMatchers {
   }
 
   it should "handle multiple output values" in {
-    val proc = processor[String, String] { case (in, proc) ⇒
-      proc.put(in)
-      proc.put(in)
+    val proc = processor[String, String] { case (in, put) ⇒
+      put(in)
+      put(in)
     }
 
     proc.start()

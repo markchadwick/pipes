@@ -40,7 +40,7 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
 
 
   def enqueue(in: In) = inputQueue.put(Some(in))
-  def put(out: Out) = outputQueue.put(Some(out))
+  def defaultPut(out: Out) = outputQueue.put(Some(out))
 
   def newThread(runnable: Runnable): Thread = {
     val thread = new Thread(runnable)
@@ -53,7 +53,7 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
       def run = {
         Stream.continually(inputQueue.take())
               .takeWhile(_ != None)
-              .foreach(v ⇒ process(v.get))
+              .foreach(v ⇒ process(v.get, defaultPut _))
         outputQueue.put(None)
       }
     })
@@ -67,12 +67,4 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
   def get() = Stream.continually(outputQueue.take())
                     .takeWhile(_ != None)
                     .map(_.get)
-}
-
-object ThreadProcessorFactory extends ProcessorFactory {
-  def apply[In, Out](func: In ⇒ Traversable[Out]): Processor[In, Out] = {
-    new ThreadProcessor[In, Out] {
-      def process(in: In) = func(in).foreach(put)
-    }
-  }
 }
