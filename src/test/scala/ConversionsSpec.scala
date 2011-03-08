@@ -6,6 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 class ConversionsSpec extends FlatSpec with ShouldMatchers {
   behavior of "Conversions"
 
+  /*
   it should "convert a function to a pipe" in {
     import pipes.Pipes._
 
@@ -39,4 +40,5 @@ class ConversionsSpec extends FlatSpec with ShouldMatchers {
     val pipe = List(1, 2, 3) | ((x: Int) ⇒ x * 2 :: Nil)
     pipe() should equal (List(2, 4, 6))
   }
+  */
 }
