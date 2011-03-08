@@ -7,15 +7,12 @@ import org.scalatest.matchers.ShouldMatchers
 class PipeSpec extends FlatSpec with ShouldMatchers {
   behavior of "Pipe"
 
-  /*
   it should "define a pipe" in {
-    val doublePipe = Pipe {
-      def apply(i: Int) = i * 2 :: Nil
-    }
-
+    import pipes.processor.SerialProcessorFactory
+    // implicit val fact = SerialProcessorFactory
+    val doublePipe = Pipe { (i: Int) ⇒ i * 2 :: Nil }
     doublePipe(3) should equal (6 :: Nil)
   }
-  */
 
   /*
   it should "put two pipes to gether" in {

@@ -68,3 +68,11 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
                     .takeWhile(_ != None)
                     .map(_.get)
 }
+
+object ThreadProcessorFactory extends ProcessorFactory {
+  def apply[In, Out](func: In ⇒ Traversable[Out]): Processor[In, Out] = {
+    new ThreadProcessor[In, Out] {
+      def process(in: In) = func(in).foreach(put)
+    }
+  }
+}

@@ -1,5 +1,8 @@
 package pipes.processor
 
+trait ProcessorFactory {
+  def apply[In, Out](func: In ⇒ Traversable[Out]): Processor[In, Out]
+}
 
 /** A processor is a unit of work which is able to take some value and put some
   * other values on a queue. The exact deatils of how it is executed (or
@@ -32,7 +35,6 @@ trait Processor[In, Out] {
     * @param inValue Value to process
     */
   def process(inValue: In): Unit
-  // def withProcess(p: In ⇒ Unit): this.type
 
   def put(outValue: Out): Unit
   def enqueue(inValue: In): Unit

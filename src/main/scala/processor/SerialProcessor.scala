@@ -15,3 +15,11 @@ trait SerialProcessor[In, Out] extends Processor[In, Out] {
     results
   } 
 }
+
+object SerialProcessorFactory extends ProcessorFactory {
+  def apply[In, Out](func: In ⇒ Traversable[Out]): Processor[In, Out] = {
+    new SerialProcessor[In, Out] {
+      def process(in: In) = func(in).foreach(put)
+    }
+  }
+}
