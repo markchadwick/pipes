@@ -7,7 +7,7 @@ class PipesProject(info: ProjectInfo) extends ParentProject(info) {
 
   class PipesCore(info: ProjectInfo) extends DefaultProject(info)
                                      with ScctProject {
-    DependsOn.scalatest
+    lazy val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
   }
 
   // //////////////////////////////////////////////////////////////////////////
@@ -16,11 +16,21 @@ class PipesProject(info: ProjectInfo) extends ParentProject(info) {
   val jgrep = project("examples" / "jgrep", "jgrep", new JGrep(_), core)
 
   class JGrep(info: ProjectInfo) extends DefaultProject(info) {
-    DependsOn.scalatest
+    // DependsOn.scalatest
+
+    lazy val jackson = jacksonDependency("jackson-core-asl")
+    lazy val jacksonMapper = jacksonDependency("jackson-mapper-asl")
+    lazy val jacksonSmile = jacksonDependency("jackson-smile")
+    lazy val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
+
+    private def jacksonDependency(name: String) =
+      "org.codehaus.jackson" % name % "1.6.4"
   }
 
+  /*
   object DependsOn {
     lazy val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
   }
+  */
 }
 

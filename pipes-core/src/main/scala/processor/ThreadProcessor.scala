@@ -41,6 +41,7 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
 
   def enqueue(in: In) = inputQueue.put(Some(in))
   def defaultPut(out: Out) = outputQueue.put(Some(out))
+  def drain: Traversable[Out] = Nil
 
   def newThread(runnable: Runnable): Thread = {
     val thread = new Thread(runnable)
@@ -52,20 +53,23 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
   def start(put: Out ⇒ Unit): Unit = {
     val thread = newThread(new Runnable {
       def run = {
+        println("...starting %s".format(this))
         Stream.continually(inputQueue.take())
               .takeWhile(_ != None)
               .foreach(v ⇒ process(v.get, put))
         outputQueue.put(None)
+        println("...stopping %s".format(this))
       }
     })
     thread.start()
   }
 
   override def stop() = {
+    println("...putting None on %s".format(this))
     inputQueue.put(None)
   }
 
   def get() = Stream.continually(outputQueue.take())
                     .takeWhile(_ != None)
-                    .map(_.get)
+                    .map(_.get) ++ drain
 }

@@ -12,13 +12,14 @@ trait Pipe[In, Out] extends ThreadProcessor[In, Out] {
     val me = this
     new Pipe[In, A] {
       def apply(in: In): Traversable[A] = {
-        me.start(other.enqueue _)
         other.start()
+        me.start(other.enqueue _)
 
         me.enqueue(in)
 
         me.stop()
-        me.get()
+        me.get().size
+
         other.stop()
         other.get()
       }
