@@ -41,7 +41,6 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
 
   def enqueue(in: In) = inputQueue.put(Some(in))
 
-  def defaultPut(out: Out) = outputQueue.put(Some(out))
   def drain: Traversable[Out] = Nil
 
   def newThread(runnable: Runnable): Thread = {
@@ -50,58 +49,28 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
     return thread
   }
 
-  def run[A](func: ⇒ A) = run(defaultPut _)(func _)
+  protected def defaultPut(out: Out) = outputQueue.put(Some(out))
+  def run[T](func: ⇒ T): Traversable[Out] = runWithPut(defaultPut _)(func)
 
-  def run[A](put: Out ⇒ Unit)(func: ⇒ A): Traversable[Out] = {
+  def runWithPut[T](put: Out ⇒ Unit)(func: ⇒ T): Traversable[Out] = {
     val thread = newThread(new Runnable {
       def run = {
-        println("[%s]...running thread...".format(this))
         Stream.continually(inputQueue.take())
               .takeWhile(_ != None)
               .foreach(v ⇒ process(v.get, put))
         outputQueue.put(None)
-        println("[%s]...done running thread...".format(this))
       }
     })
+
     thread.start()
     func
     inputQueue.put(None)
-    Thread.sleep(500)
-    val result = Stream.continually(outputQueue.take())
-                       .takeWhile(_ != None)
-                       .map(_.get) ++ drain ++ {
-                          println("[%s]...joining...".format(this))
-                          thread.join()
-                          println("[%s]...done joining...".format(this))
-                        Stream.empty[Out]
-                       }
 
-    return result
+    Stream.continually(outputQueue.take())
+          .takeWhile(_ != None)
+          .map(_.get) ++ drain ++ {
+            thread.join()
+            Stream.empty[Out]
+          }.toList
   }
-    
-
-
-  /*
-  override def start() = start(defaultPut _)
-  def start(put: Out ⇒ Unit): Unit = {
-    thread = Some(newThread(new Runnable {
-      def run = {
-        Stream.continually(inputQueue.take())
-              .takeWhile(_ != None)
-              .foreach(v ⇒ process(v.get, put))
-        outputQueue.put(None)
-      }
-    }))
-    thread.map(_.start)
-  }
-
-  override def stop() = {
-    inputQueue.put(None)
-    thread.map(_.join)
-  }
-
-  def get() = Stream.continually(outputQueue.take())
-                    .takeWhile(_ != None)
-                    .map(_.get) ++ drain
-  */
 }

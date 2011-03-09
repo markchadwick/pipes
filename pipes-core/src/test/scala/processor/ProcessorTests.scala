@@ -12,7 +12,6 @@ trait ProcessorTests extends FlatSpec with ShouldMatchers {
 
   it should "transform a value" in {
     val proc = processor[Int, Int] { case (in, put) ⇒
-      println("[proc] got %s".format(in))
       put(in * 2)
     }
 
@@ -25,7 +24,6 @@ trait ProcessorTests extends FlatSpec with ShouldMatchers {
     result.toList should equal (List(2, 4, 6))
   }
 
-  /*
   it should "handle multiple output values" in {
     val proc = processor[String, String] { case (in, put) ⇒
       put(in)
@@ -43,5 +41,4 @@ trait ProcessorTests extends FlatSpec with ShouldMatchers {
     results(2) should equal ("there")
     results(3) should equal ("there")
   }
-  */
 }

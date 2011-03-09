@@ -15,13 +15,15 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
     doublePipe(3) should equal (6 :: Nil)
   }
 
-  it should "put two pipes to gether" in {
+  it should "put two pipes together" in {
     val doublePipe = new Pipe[Int, Int] {
       def apply(i: Int) = i * 2 :: Nil
+      override def toString = "double"
     }
 
     val twicePipe = new Pipe[Int, Int] {
       def apply(i: Int) = i :: i :: Nil
+      override def toString = "twice"
     }
 
     val p1 = doublePipe | twicePipe
@@ -32,7 +34,7 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "optionally append a pipe" in {
-    val doublePipe = new Pipe[Int, Int] {
+    def doublePipe = new Pipe[Int, Int] {
       def apply(i: Int) = i * 2 :: Nil
     }
 
@@ -51,5 +53,27 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
 
     val p = pipe("one") | pipe("two") | pipe("three")
     p.toString should equal ("((one ⇒ two) ⇒ three)")
+  }
+
+  it should "be able to run a pipe twice" in {
+    val doublePipe = new Pipe[Int, Int] {
+      def apply(i: Int) = i * 2 :: Nil
+    }
+    doublePipe(3) should equal (6 :: Nil)
+    doublePipe(6) should equal (12 :: Nil)
+  }
+
+  it should "be able to run three pipes" in {
+    // ie: Connect a "normal" pipe to a "piped up" pipe
+
+    def pipe(name: String) = new Pipe[String, String] {
+      def apply(s: String) = s :: name :: Nil
+      override def toString = name
+    }
+
+    val p = pipe("one") | pipe("two") | pipe("three")
+    val res = p("s").toList
+    p("s").toList should equal (List("s", "three", "two", "three", "one",
+                                  "three", "two", "three"))
   }
 }

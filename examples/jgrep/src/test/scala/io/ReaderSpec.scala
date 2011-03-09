@@ -14,8 +14,9 @@ class ReaderSpec extends FlatSpec with ShouldMatchers {
   it should "be faster than scala.io.Source" in {
     val fileName = "/home/mchadwick/log.json"
 
-    (1 to 10) foreach { i ⇒
+    (1 to 1) foreach { i ⇒
       println("...run #%s".format(i))
+      // readLines("Scala Reader", fileName, scalaReader)
       readLines("Pipe Reader", fileName, pipeReader)
     }
   }
@@ -37,7 +38,7 @@ class ReaderSpec extends FlatSpec with ShouldMatchers {
   }
 
   private def pipeReader = 
-    new FileChunkReader(1024 * 64) | new LineReader()
+    new FileChunkReader(1024 * 1024) | new LineChunker() | new LineReader()
 
   private def scalaReader = new Pipe[String, String] {
     def apply(fileName: String) = {
