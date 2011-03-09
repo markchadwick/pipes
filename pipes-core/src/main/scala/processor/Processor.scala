@@ -1,18 +1,13 @@
 package pipes.processor
 
+import pipes.scheduler.Scheduler
+import pipes.scheduler.Puttable
+
 trait Processor[In, Out] {
+  def process(input: In, put: Out ⇒ Unit)
 
-  type Putable = {
-    def put(in: In)
-  }
-
-  type Takable = {
-    def take(): Out
-  }
-
-  def process(inValue: In, put: Out ⇒ Unit): Unit
-
-  def enqueue(inValue: In): Unit
-
-  def run[T](func: ⇒ T): Traversable[Out]
+  /*
+  def run(implicit scheduler: Scheduler): Traversable[Out] =
+    scheduler.run(this)(scheduler.input)
+  */
 }

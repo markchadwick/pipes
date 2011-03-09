@@ -3,8 +3,7 @@ package pipes
 import pipes.processor.ThreadProcessor
 
 
-trait Pipe[In, Out] extends ThreadProcessor[In, Out] {
-  /*
+trait Pipe[In, Out] { /* extends ThreadProcessor[In, Out] {
   def apply(in: In): Traversable[Out]
 
   def process(in: In, put: Out ⇒ Unit) = apply(in).foreach(put)

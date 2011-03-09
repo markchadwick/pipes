@@ -13,7 +13,7 @@ class PipesProject(info: ProjectInfo) extends ParentProject(info) {
   // //////////////////////////////////////////////////////////////////////////
   // Examples
 
-  val jgrep = project("examples" / "jgrep", "jgrep", new JGrep(_), core)
+  // val jgrep = project("examples" / "jgrep", "jgrep", new JGrep(_), core)
 
   class JGrep(info: ProjectInfo) extends DefaultProject(info) {
     // DependsOn.scalatest
@@ -26,11 +26,5 @@ class PipesProject(info: ProjectInfo) extends ParentProject(info) {
     private def jacksonDependency(name: String) =
       "org.codehaus.jackson" % name % "1.6.4"
   }
-
-  /*
-  object DependsOn {
-    lazy val scalatest = "org.scalatest" % "scalatest" % "1.3" % "test"
-  }
-  */
 }
 
