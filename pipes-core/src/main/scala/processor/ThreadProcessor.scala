@@ -15,7 +15,7 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
   /** Default maximum queue size. If neither `maxInputQueueSize` or
     * `maxOutputQueueSize` are overriden, this will serve as the default value
     * for both. */
-  def maxQueueSize = 100
+  def maxQueueSize = 10
 
   /** Maximum size of the input queue. Whoever is feeding values to this
     * `Processor` will block when this number of times is pending execution. */
@@ -39,7 +39,10 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
     new LinkedBlockingQueue[A](size)
 
 
-  def enqueue(in: In) = inputQueue.put(Some(in))
+  def enqueue(in: In) = {
+    println("- enqueue %s/%s".format(inputQueue.size, maxInputQueueSize))
+    inputQueue.put(Some(in))
+  }
   def defaultPut(out: Out) = outputQueue.put(Some(out))
   def drain: Traversable[Out] = Nil
 
@@ -71,5 +74,5 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
 
   def get() = Stream.continually(outputQueue.take())
                     .takeWhile(_ != None)
-                    .map(_.get) ++ drain
+                    .map(_.get) // ++ drain
 }
