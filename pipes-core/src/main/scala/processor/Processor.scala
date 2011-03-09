@@ -41,14 +41,5 @@ trait Processor[In, Out] {
 
   def enqueue(inValue: In): Unit
 
-  def start(): Unit = {}
-  def stop(): Unit = {}
-  def get(): Traversable[Out]
-
-  def apply[A](func: Processor[In, Out] ⇒ A) {
-    start()
-    val result = func(this)
-    stop()
-    result
-  }
+  def run[A](func: ⇒ A): Traversable[Out]
 }

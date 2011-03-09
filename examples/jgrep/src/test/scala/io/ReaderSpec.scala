@@ -12,10 +12,21 @@ class ReaderSpec extends FlatSpec with ShouldMatchers {
   behavior of "Reader Pipeline"
 
   it should "be faster than scala.io.Source" in {
-    val fileName = "/home/mchadwick/log.small.json"
+    val fileName = "/home/mchadwick/log.json"
 
-    readLines("Scala Reader", fileName, scalaReader)
-    readLines("Pipe Reader", fileName, pipeReader)
+    (1 to 10) foreach { i ⇒
+      println("...run #%s".format(i))
+      readLines("Pipe Reader", fileName, pipeReader)
+    }
+  }
+
+  class Counter extends Pipe[String, Int] {
+    var sum = 0
+    def apply(s: String) = {
+      sum += 1
+      Nil
+    }
+    override def drain = sum :: Nil
   }
 
   private def readLines(name: String, fileName: String, pipe: Pipe[String, String]) {

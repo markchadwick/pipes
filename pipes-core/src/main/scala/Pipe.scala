@@ -12,22 +12,11 @@ trait Pipe[In, Out] extends ThreadProcessor[In, Out] {
     val me = this
     new Pipe[In, A] {
       def apply(in: In): Traversable[A] = {
-        println("[Pipe] other.start")
-        other.start()
-        println("[Pipe] me.start")
-        me.start(other.enqueue _)
-
-        println("[Pipe] me.enqueue")
-        me.enqueue(in)
-
-        println("[Pipe] me.stop")
-        me.stop()
-        println("[Pipe] draining")
-
-        println("[Pipe] other.stop")
-        other.stop()
-        println("[Pipe] other.get")
-        other.get()
+        other.run {
+          me.run(other.enqueue _) {
+            me.enqueue(in)
+          }
+        }
       }
 
       override def toString = "(%s ⇒ %s)".format(me, other)

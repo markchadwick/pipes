@@ -9,7 +9,8 @@ trait SerialProcessor[In, Out] extends Processor[In, Out] {
   def enqueue(in: In) = process(in, defaultPut _)
   protected def defaultPut(out: Out) = outQueue += out
 
-  def get() = {
+  def run[A](func: ⇒ A) = {
+    func
     val results = outQueue.clone()
     outQueue.clear()
     results

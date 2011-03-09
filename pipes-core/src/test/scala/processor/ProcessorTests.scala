@@ -12,34 +12,36 @@ trait ProcessorTests extends FlatSpec with ShouldMatchers {
 
   it should "transform a value" in {
     val proc = processor[Int, Int] { case (in, put) ⇒
+      println("[proc] got %s".format(in))
       put(in * 2)
     }
 
-    proc { p ⇒
-      p.enqueue(1)
-      p.enqueue(2)
-      p.enqueue(3)
+    val result = proc.run {
+      proc.enqueue(1)
+      proc.enqueue(2)
+      proc.enqueue(3)
     }
 
-    proc.get.toList should equal (List(2, 4, 6))
+    result.toList should equal (List(2, 4, 6))
   }
 
+  /*
   it should "handle multiple output values" in {
     val proc = processor[String, String] { case (in, put) ⇒
       put(in)
       put(in)
     }
 
-    proc.start()
-    proc.enqueue("hi")
-    proc.enqueue("there")
-    proc.stop()
+    var results = proc.run {
+      proc.enqueue("hi")
+      proc.enqueue("there")
+    }.toList
 
-    val results = proc.get().toList
     results should have size (4)
     results(0) should equal ("hi")
     results(1) should equal ("hi")
     results(2) should equal ("there")
     results(3) should equal ("there")
   }
+  */
 }

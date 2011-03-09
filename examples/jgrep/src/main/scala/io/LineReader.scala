@@ -12,18 +12,16 @@ class LineReader extends Pipe[ByteBuffer, String] {
   val decoder = charset.newDecoder
 
   def apply(s: ByteBuffer) = Nil
-  def newQueue[A] = new java.util.concurrent.LinkedBlockingQueue[A]()
+  override def newQueue[A](size: Int) = new java.util.concurrent.LinkedBlockingQueue[A]()
 
   private var buf = new StringBuilder()
   private var lastPut: Option[String ⇒ Unit] = None
 
   override def process(in: ByteBuffer, put: String ⇒ Unit) {
     lastPut = Some(put)
-    val charBuffer = decoder.decode(in)
-    println("[LineReader]: Read %s".format(charBuffer.remaining))
-    println("[LineReader]: %s jimmies on the queue".format(inputQueue.size))
-    while(charBuffer.remaining > 1) {
-      val next = charBuffer.get()
+    // val charBuffer = decoder.decode(in)
+    while(in.remaining > 1) {
+      val next = in.getChar()
       if(next == '\n') {
         put(buf.toString)
         buf = new StringBuilder()
