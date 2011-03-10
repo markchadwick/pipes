@@ -1,9 +1,20 @@
 package pipes
 
-import pipes.processor.ThreadProcessor
+import pipes.processor.Processor
+import pipes.scheduler.Scheduler
 
+trait Pipe[In, A, Out] extends Processor[In, Out] {
+  val source: Processor[In, A]
+  val sink: Processor[A, Out]
+  val scheduler: Scheduler
 
-trait Pipe[In, Out] { /* extends ThreadProcessor[In, Out] {
+  def process(input: In, put: Out ⇒ Unit) = {
+  }
+
+  override def toString = "(%s ⇒ %s)".format(source, sink)
+}
+
+/* trait Pipe[In, Out] extends ThreadProcessor[In, Out] {
   def apply(in: In): Traversable[Out]
 
   def process(in: In, put: Out ⇒ Unit) = apply(in).foreach(put)
@@ -37,5 +48,5 @@ trait Pipe[In, Out] { /* extends ThreadProcessor[In, Out] {
       case None ⇒ this
       case Some(pipe) ⇒ this | pipe
     }
-  */
 }
+*/
