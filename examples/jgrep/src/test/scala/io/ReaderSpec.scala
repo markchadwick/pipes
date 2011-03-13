@@ -12,7 +12,7 @@ class ReaderSpec extends FlatSpec with ShouldMatchers {
   behavior of "Reader Pipeline"
 
   it should "be faster than scala.io.Source" in {
-    val fileName = "/home/mchadwick/log.json"
+    val fileName = "/home/mchadwick/log.small.json"
 
     (1 to 1) foreach { i ⇒
       println("...run #%s".format(i))

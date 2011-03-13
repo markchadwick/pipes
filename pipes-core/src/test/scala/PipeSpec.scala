@@ -8,6 +8,7 @@ import pipes.processor.Processor
 class PipeSpec extends FlatSpec with ShouldMatchers {
   behavior of "Pipe"
 
+  /*
   it should "define a pipe" in {
     val doublePipe = new Pipe[Int, Int] {
       def apply(i: Int) = i * 2 :: Nil
@@ -63,17 +64,25 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
     doublePipe(6) should equal (12 :: Nil)
   }
 
+  */
+
   it should "be able to run three pipes" in {
     // ie: Connect a "normal" pipe to a "piped up" pipe
 
     def pipe(name: String) = new Pipe[String, String] {
-      def apply(s: String) = s :: name :: Nil
+      def apply(s: String) = {
+        println("[%s]: got %s".format(this, s))
+        s :: name :: Nil
+      }
       override def toString = name
     }
 
-    val p = pipe("one") | pipe("two") | pipe("three")
-    val res = p("s").toList
-    p("s").toList should equal (List("s", "three", "two", "three", "one",
+    println("-- PipeSpec: constructing")
+    val p = pipe("one") | pipe("two") | pipe("__THREE__")
+    println("-- PipeSpec: applying")
+    val result = p("s").toList
+    println("-- PipeSpec: verifying")
+    result should equal (List("s", "three", "two", "three", "one",
                                   "three", "two", "three"))
   }
 }

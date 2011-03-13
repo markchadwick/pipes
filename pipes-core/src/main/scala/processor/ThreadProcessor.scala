@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue
 /** A `Processor` which computes events entirely serially in a self-contained
   * thread. Boundies have been set for the thread below, but they should be
   * overriden in specific cases */
-trait ThreadProcessor[In, Out] extends Processor[In, Out] {
+trait ThreadProcessor[In, T, Out] extends Processor[In, Out] {
 
   protected val inputQueue = newQueue[Option[In]](maxInputQueueSize)
   protected val outputQueue = newQueue[Option[Out]](maxOutputQueueSize)
@@ -38,21 +38,20 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
   protected def newQueue[A](size: Int): BlockingQueue[A] =
     new LinkedBlockingQueue[A](size)
 
-
   def enqueue(in: In) = inputQueue.put(Some(in))
 
-  def drain: Traversable[Out] = Nil
+  protected def drain: Traversable[Out] = Nil
 
-  def newThread(runnable: Runnable): Thread = {
+  protected def newThread(runnable: Runnable): Thread = {
     val thread = new Thread(runnable)
     thread.setName("[ThreadProcessor]: %s".format(this.toString))
     return thread
   }
 
-  protected def defaultPut(out: Out) = outputQueue.put(Some(out))
-  def run[T](func: ⇒ T): Traversable[Out] = runWithPut(defaultPut _)(func)
+  protected def defaultPut(out: T) = outputQueue.put(Some(out))
+  def run[U](func: ⇒ U): Traversable[Out] = runWithPut(defaultPut _)(func)
 
-  def runWithPut[T](put: Out ⇒ Unit)(func: ⇒ T): Traversable[Out] = {
+  def runWithPut[U](put: U ⇒ Unit)(func: ⇒ U): Traversable[Out] = {
     val thread = newThread(new Runnable {
       def run = {
         Stream.continually(inputQueue.take())

@@ -59,6 +59,8 @@ class LineChunker extends Pipe[ByteBuffer, Array[Byte]] {
     put(result)
   }
 
+  override def drain = if(saved.length > 0) List(saved) else Nil
+
   def trim(chunk: Array[Byte], end: Int, start: Int) = {
     var i = end - 1
     while(i > start && chunk(i) != EOL) i -= 1

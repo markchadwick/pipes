@@ -1,10 +1,12 @@
 package pipes.processor
 
+/*
 object Processor {
   def apply[A, B](func: A ⇒ Traversable[B]) = new ThreadProcessor[A, B] {
     def process(in: A, put: B ⇒ Unit) = func(in).foreach(put)
   }
 }
+*/
 
 /** A processor is a unit of work which is able to take some value and put some
   * other values on a queue. The exact deatils of how it is executed (or
