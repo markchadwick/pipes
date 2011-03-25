@@ -45,7 +45,7 @@ trait ThreadProcessor[In, Out] extends Processor[In, Out] {
 
   def newThread(runnable: Runnable): Thread = {
     val thread = new Thread(runnable)
-    thread.setName("[ThreadProcessor]: %s".format(this.toString))
+    thread.setName("[ThreadProc]:%s".format(this.toString))
     return thread
   }
 

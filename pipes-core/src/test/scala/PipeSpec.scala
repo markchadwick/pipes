@@ -76,4 +76,29 @@ class PipeSpec extends FlatSpec with ShouldMatchers {
     p("s").toList should equal (List("s", "three", "two", "three", "one",
                                   "three", "two", "three"))
   }
+
+  it should "not block on a stream larger than its buffers" in {
+    def pipe(name: String) = new Pipe[Int, Int] {
+      def apply(i: Int) = (0 to i)
+      override def toString = name
+    }
+
+    val p = pipe("one") | pipe("two") | pipe("three") | pipe("four")
+    p(64) should have size (814385)
+  }
+
+  /*
+  it should "not block on a very long pipe" in {
+    def pipe(name: Int) = new Pipe[Int, Int] {
+      def apply(i: Int) = i :: Nil
+      override def toString = name.toString
+    }
+
+    val p = (1 to 100).foldLeft(pipe(0)) { case(x: Pipe[Int, Int], i: Int) ⇒
+      x | pipe(i)
+    }
+    println(p)
+
+  }
+  */
 }

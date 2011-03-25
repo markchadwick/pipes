@@ -37,7 +37,6 @@ class FileChunkReader(bufSize: Int) extends Pipe[String, ByteBuffer] {
 class LineChunker extends Pipe[ByteBuffer, Array[Byte]] {
   var saved = new Array[Byte](0)
   val EOL = '\n'.toByte
-
   def apply(in: ByteBuffer) = Nil
 
   override def process(block: ByteBuffer, put: Array[Byte] ⇒ Unit) {
@@ -50,13 +49,14 @@ class LineChunker extends Pipe[ByteBuffer, Array[Byte]] {
     System.arraycopy(saved, 0, chunk, 0, saved.length)
     block.get(chunk, saved.length, block.remaining)
 
-    val lastEol = trim(chunk, 0, chunkSize) + 1
-    val last = (saved.length max lastEol) min chunkSize
-    saved = copyOfRange(chunk, last, chunkEnd)
+    var lastEol = chunk.size - 1
+    while(lastEol > 0 && chunk(lastEol) != EOL) lastEol -= 1
 
-    val result = new Array[Byte](last)
-    System.arraycopy(chunk, 0, result, 0, last)
+    val result = new Array[Byte](lastEol)
+    System.arraycopy(chunk, 0, result, 0, lastEol)
     put(result)
+
+    saved = copyOfRange(chunk, lastEol + 1, chunk.size)
   }
 
   def trim(chunk: Array[Byte], end: Int, start: Int) = {
@@ -64,6 +64,8 @@ class LineChunker extends Pipe[ByteBuffer, Array[Byte]] {
     while(i > start && chunk(i) != EOL) i -= 1
     i
   }
+
+  override def drain = saved :: Nil
 
   override def newThread(r: Runnable) = {
     val thread = super.newThread(r)
@@ -75,7 +77,7 @@ class LineChunker extends Pipe[ByteBuffer, Array[Byte]] {
 }
 
 class LineReader extends Pipe[Array[Byte], String] {
-  def apply(s: Array[Byte]) = {
-    new String(s, "UTF-8").split("\n")
-  }
+  def apply(in: Array[Byte]) = 
+    new String(in, "UTF-8").split("\n")
+  override def toString = "LineReader"
 }
